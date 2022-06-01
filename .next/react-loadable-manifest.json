@@ -1,0 +1,12 @@
+{
+  "..\\node_modules\\@inrupt\\solid-client\\dist\\fetcher.mjs -> cross-fetch": {
+    "id": "./node_modules/cross-fetch/dist/browser-ponyfill.js",
+    "files": []
+  },
+  "..\\node_modules\\next\\dist\\client\\next-dev.js -> ./dev/noop": {
+    "id": "./node_modules/next/dist/client/dev/noop.js",
+    "files": [
+      "static/chunks/node_modules_next_dist_client_dev_noop_js.js"
+    ]
+  }
+}
