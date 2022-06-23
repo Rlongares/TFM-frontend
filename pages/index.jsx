@@ -18,14 +18,13 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useRef, useState, useEffect} from "react";
 import { useSession } from "@inrupt/solid-ui-react";
 import { Button } from "@inrupt/prism-react-components";
 import axios from 'axios'
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 import {CRow, CCol} from '@coreui/react';
-import {getFile} from '@inrupt/solid-client';
-import {fetch} from '@inrupt/solid-client-authn-browser';
+
 import {
   useQuery,
   useQueryClient,
@@ -35,44 +34,78 @@ import {
 import { ReactQueryDevtools } from 'react-query/devtools'
 import personalData  from '../resources/personaldata.json';
 import purposesData from '../resources/purposes.json';
-import Card from '../components/resourceCard/resourceCard.js'
+import { CCard,CCardBody,CCardGroup,CCardHeader,CCardLink,CCardText,CCardTitle,CCardSubtitle,CListGroup,CListGroupItem,CButton     } from '@coreui/react';
+import '@coreui/coreui/dist/css/coreui.min.css'
+import {getFile} from '@inrupt/solid-client';
+import {fetch} from '@inrupt/solid-client-authn-browser';
+import 'bootstrap/dist/css/bootstrap.min.css'
 
-async function saveFile () {
-  const fileURL =   "https://pod.inrupt.com/ricardomld/private/Holamundo.txt";
- const filename = fileURL.substring(fileURL.lastIndexOf("/") + 1);
- const file = await getFile(
-         fileURL,               // File in Pod to Read
-         { fetch: fetch }       // fetch from authenticated session
- );
- if (window.navigator.msSaveOrOpenBlob) {
-   window.navigator.msSaveOrOpenBlob(file, filename);
- } else {
-   const a = document.createElement('a');
-   document.body.appendChild(a);
-   const url = window.URL.createObjectURL(file);
-   a.href = url;
-   a.download = filename;
-   a.click();
-   setTimeout(() => {
-     window.URL.revokeObjectURL(url);
-     document.body.removeChild(a);
-   }, 0)
- }
+
+
+var saveFile;
+
+const Card = ({name, urlList, categories, policies,recipients, duration}) =>{
+
+
+  return(
+      <CCard
+      color="light"
+
+
+      style={{"maxWidth": '300px'},{ "padding": 30 },{"margin-bottom": 20}}
+
+
+      >
+
+        <CCardHeader>{name}</CCardHeader>
+
+        <CCardBody>
+
+          <CCardTitle>The category of the file is: {categories}</CCardTitle>
+
+          <CCardText>The recipients are: {recipients}</CCardText>
+          <CCardText>The duration is: {duration}</CCardText>
+          <CCardText>The policies are: </CCardText>
+          </CCardBody>
+
+          {policies.map(({ polName, purpose, action }) => (
+            <>
+            <CCardBody>
+              <CCardSubtitle><b>Name: {polName}</b></CCardSubtitle>
+            </CCardBody>
+            <CListGroup flush>
+            {purpose.map((item, i) =>
+              <>
+              <CListGroupItem>{item.toString()} - {action.toString()}</CListGroupItem>
+              </>
+            )}
+            </CListGroup>
+            </>
+          ))}
+
+        <CCardBody>
+
+        <CButton onClick={()=>saveFile(urlList)}>Download the folder contents.</CButton>
+
+        </CCardBody>
+
+      </CCard>
+
+  );
+
 }
 
 const CardList = ({ resourceCards }) => {
   const cardsArray = resourceCards.map(resourceCard => (
     <div style={{minWidth:"200px"}}>
-    <a onClick={saveFile}>
     <Card
       name={resourceCard.name}
-      url={resourceCard.uri}
+      urlList={resourceCard.uri}
       categories={resourceCard.categories}
       policies={resourceCard.policies}
       recipients={resourceCard.recipients}
       duration={resourceCard.duration}
     />
-    </a>
     </div>
   ));
 
@@ -87,19 +120,50 @@ export default function Home() {
   const { session } = useSession();
   const queryClient = new QueryClient();
   const [query, setQuery] = useState(false);
-  const [value1, setValue1] = useState([]);
-  const [value2, setValue2] = useState([]);
   const [getResult, setGetResult] = useState(null);
   const [getResultContent, setGetResultContent] = useState(null);
   const [webId, setWebId] = useState();
   const [url,setUrl] = useState("");
+  const [error, setError] = useState(false);
   let selectedPUR = [];
   let selectedPD = [];
 
 
+   saveFile = async (urlList) => {
+   for(var i = 0; i<urlList.length;i++){
+     const fileURL = urlList[i].toString();
+     const filename = fileURL.substring(fileURL.lastIndexOf("/") + 1);
+     const file = await getFile(
+             fileURL,               // File in Pod to Read
+             { fetch: session.fetch }       // fetch from authenticated session
+     );
+     try {
+
+
+    if (window.navigator.msSaveOrOpenBlob) {
+      window.navigator.msSaveOrOpenBlob(file, filename);
+    } else {
+      const a = document.createElement('a');
+      document.body.appendChild(a);
+      const url = window.URL.createObjectURL(file);
+      a.href = url;
+      a.download = filename;
+      a.click();
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 0)
+    }
+   } catch (err) {
+   console.log(err);
+   }
+   }
+
+ }
 
   const callAPI = () => {
-        setQuery(true);
+         setQuery(true);
+        setUrl("");
   }
   const goBack = () => {
         setQuery(false);
@@ -128,10 +192,13 @@ export default function Home() {
               headers: res.headers,
               data: res.data,
             };
+
             result = fortmatResponse(res);
+            setError(false);
             setGetResult(res.data);
           },
           onError: (err) => {
+            setError(true);
             setGetResult(fortmatResponse(err.response?.data || err));
           },
         }
@@ -140,25 +207,26 @@ export default function Home() {
         if (isLoadingAll) setGetResult("loading...");
       }, [isLoadingAll]);
 
+  var  uri = "http://localhost:8000/getFiles?";
+
   const getQueryAll = async () => {
     try {
       await setWebId(session.info.webId)
-      var  uri = "http://localhost:8080/api?";
       if(selectedPD.length == 0){
-        uri += "catPData=0&";
+        uri += "catPData[]=0&";
       }else{
         for (var i = 0; i < selectedPD.length;i++){
-          uri += "catPData="+selectedPD[i]+"&";
+          uri += "catPData[]="+selectedPD[i]+"&";
         }
       }
       if(selectedPUR.length == 0){
-        uri += "purPData=0";
+        uri += "purPData[]=0";
       }else{
         for (var j = 0; j < selectedPUR.length;j++){
           if(j == selectedPUR.length){
-            uri += "purPData="+selectedPUR[j];
+            uri += "purPData[]="+selectedPUR[j];
           }
-          uri += "purPData="+selectedPUR[j]+"&";
+          uri += "purPData[]="+selectedPUR[j]+"&";
         }
       }
         await setUrl(uri);
@@ -166,57 +234,18 @@ export default function Home() {
     } catch (err) {
       setGetResult(fortmatResponse(err));
     }
+    uri = "http://localhost:8000/api?";
+
   }
 
   useEffect(() => {
-   getAll(); // This will always use latest value of uri
+    if(url != uri){
+      getAll(); // This will always use latest value of uri
+
+    }
   }, [url]);
 
-  const {isLoading: isLoadingFile, refetch: getOneFile } = useQuery(
-    "getQueryFile",
-    async () => {
-      return await axios({
-        method: 'get',
-        url: 'http://localhost:8080/api/https%3A%2F%2Fpod.inrupt.com%2Fricardomld%2Fpublic%2Ffotosasus001.jpg ',
-        responseType: 'blob',
-        headers : {webID: 'https://pod.inrupt.com/ricardomld/profile/card#me'}
-      });
-    },
-    {
-          enabled: false,
-          onSuccess: async (res) => {
-            let result = {
-              status: res.status + "-" + res.statusText,
-              headers: res.headers,
-              data: res.data,
-            };
-            result = fortmatResponse(res);
-          //  const blob = new Blob([res.data]);
-            //const text = await (blob).text();
-            //const url= window.URL.createObjectURL(blob);
-            //const downloadLink = React.createElement('a', { download: 'filename.csv', href: url}, 'download')
-            //saveFile(blob,"hello.png");
 
-            setGetResult(fortmatResponse(res.data));
-            //setGetResultContent(blob);
-
-          },
-          onError: (err) => {
-            setGetResult(fortmatResponse(err.response?.data || err));
-          },
-        }
-      );
-      useEffect(() => {
-        if (isLoadingFile) setGetResult("loading...");
-      }, [isLoadingFile]);
-
-  const getQueryFile = async () => {
-    try {
-      getOneFile();
-    } catch (err) {
-      setGetResult(fortmatResponse(err));
-    }
-  }
 
   const assignObjectPaths = (obj, stack) => {
     Object.keys(obj).forEach(k => {
@@ -299,7 +328,7 @@ export default function Home() {
       </div>
       <div className="form2">
 
-      {getResult && (
+      {getResult && !error && (
             <div >
             <pre>{url}</pre>
             <pre>{webId}</pre>
@@ -317,6 +346,11 @@ export default function Home() {
 
             </div>
           )}
+        {getResult && error && (
+                <div >
+                  <pre>{getResult}</pre>
+          </div>
+        )}
       </div>
       </div>
     )}
