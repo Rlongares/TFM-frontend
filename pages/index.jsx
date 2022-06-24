@@ -223,10 +223,12 @@ export default function Home() {
         uri += "purPData[]=0";
       }else{
         for (var j = 0; j < selectedPUR.length;j++){
-          if(j == selectedPUR.length){
+          if(j == selectedPUR.length -1){
             uri += "purPData[]="+selectedPUR[j];
+          }else{
+            uri += "purPData[]="+selectedPUR[j]+"&";
           }
-          uri += "purPData[]="+selectedPUR[j]+"&";
+
         }
       }
         await setUrl(uri);
