@@ -4,6 +4,22 @@ The example project is a sample application for editing user profile. You can pl
 
 ## Getting Started
 
+# Libraries used
+react
+@inrupt/solid-ui-react
+@inrupt/prism-react-components
+axios
+react-dropdown-tree-select
+@coreui/react
+react-query
+react-query/devtools
+
+@coreui/react
+@coreui/coreui/dist/css/coreui.min.css
+@inrupt/solid-client
+@inrupt/solid-client-authn-browser'
+bootstrap/dist/css/bootstrap.min.css
+
 To modify the application:
 
 1. Clone the repo.
