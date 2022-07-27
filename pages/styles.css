@@ -204,3 +204,8 @@ ul {
   stroke: #ccc;
   stroke-width: 2px;
 }
+
+.initialtext {
+  text-align: center;
+  padding:25px;
+}

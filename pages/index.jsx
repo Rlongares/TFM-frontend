@@ -63,7 +63,16 @@ const Card = ({name, urlList, categories, policies,recipients, duration}) =>{
 
           <CCardTitle>The category of the file is: {categories}</CCardTitle>
 
-          <CCardText>The recipients are: {recipients}</CCardText>
+          <CCardText>The recipients are: </CCardText>
+          {recipients.map((recipient) => (
+            <>
+            <CCardBody>
+              <CCardSubtitle><b>WebID:  {recipient}</b></CCardSubtitle>
+            </CCardBody>
+            </>
+          ))}
+          </CCardBody>
+          <CCardBody>
           <CCardText>The duration is: {duration}</CCardText>
           <CCardText>The policies are: </CCardText>
           </CCardBody>
@@ -119,7 +128,6 @@ const CardList = ({ resourceCards }) => {
 export default function Home() {
   const { session } = useSession();
   const queryClient = new QueryClient();
-  const [query, setQuery] = useState(false);
   const [getResult, setGetResult] = useState(null);
   const [getResultContent, setGetResultContent] = useState(null);
   const [webId, setWebId] = useState();
@@ -161,14 +169,9 @@ export default function Home() {
 
  }
 
-  const callAPI = () => {
-         setQuery(true);
-        setUrl("");
-  }
-  const goBack = () => {
-        setQuery(false);
-        setGetResult(null);
 
+  const goBack = () => {
+        setGetResult(null);
   }
 
   const fortmatResponse = (res) => {
@@ -211,6 +214,7 @@ export default function Home() {
 
   const getQueryAll = async () => {
     try {
+      setGetResult(null);
       await setWebId(session.info.webId)
       if(selectedPD.length == 0){
         uri += "catPData[]=0&";
@@ -236,7 +240,7 @@ export default function Home() {
     } catch (err) {
       setGetResult(fortmatResponse(err));
     }
-    uri = "http://localhost:8000/api?";
+    uri = "http://localhost:8000/getFiles?";
 
   }
 
@@ -286,35 +290,32 @@ export default function Home() {
   return (
     <div>
     { !session.info.isLoggedIn && (
-      <div className="contain">
-            <p>You are not logged in yet</p>
-          </div>
+        <div className="initialtext">
+    <p>
+      This frontend serves as a gateway for users to send requests to the <a href="https://github.com/Rlongares/TFM-API-express">API</a>.
+
+    </p>
+    <p>
+      It also allows for the download of the returned resources.
+    </p>
+    <p>
+      To get started, log in into this application and into the API.
+    </p>
+    <p>
+    Next, select the personal data categories or/and the purposes that you want to request. The default value is all categories and purposes.
+    </p>
+    <p>
+      Finally, you can make a query  by clicking the
+      "Make a GDPR petition." button and save the contents by pressing "Download the folder contents." on each of the returned resources.
+    </p>
+    <p>
+      <a href="mailto:rm.longares.diez@alumnos.upm.es">Contact Me</a>
+    </p>
+  </div>
 
     )}
-    { session.info.isLoggedIn  && !query && (
 
-      <div>
-
-
-    <div className="">
-    <p>Here you must select the categories of data you want to request:</p>
-    <div>
-    <DropdownTreeSelect data={personalData}   onChange={handlePersonalData} className="tree-select" />
-
-    </div>
-    <div clasName = "">
-
-    </div>
-    <p>Here you must select the purposes of data you want to request:</p>
-    <DropdownTreeSelect data={purposesData}   onChange={handlePurposes} className="tree-select" />
-
-
-          <Button style= {{"margin-top":"10px","margin-right": "0"}} variant="small" value="permission" onClick={callAPI} >Make new GDPR petition.</Button>
-
-    </div>
-      </div>
-    )}
-    { session.info.isLoggedIn && query && (
+    { session.info.isLoggedIn &&  (
       <div className="contain">
       <div className="form">
       <p>Here you must select the categories of data you want to request:</p>
@@ -324,16 +325,16 @@ export default function Home() {
       <DropdownTreeSelect data={purposesData}   onChange={handlePurposes} className="tree-select" />
 
 
-                <Button style= {{"margin-top":"10px","margin-right": "0"}} variant="small"  onClick={getQueryAll} >Make new GDPR petition.</Button>
-                <Button style= {{"margin-top":"10px","margin-right": "0"}} variant="small"  onClick={goBack} >Go Back.</Button>
+                <Button style= {{"margin-top":"10px","margin-right": "0"}} variant="small"  onClick={getQueryAll} >Make a GDPR petition.</Button>
+                <Button style= {{"margin-top":"10px","margin-right": "0"}} variant="small"  onClick={goBack} >Clear query.</Button>
 
       </div>
       <div className="form2">
-
+      <pre>{url}</pre>
+      <pre>{webId}</pre>
       {getResult && !error && (
             <div >
-            <pre>{url}</pre>
-            <pre>{webId}</pre>
+
             {JSON.stringify(getResult.processed) == "false" && (<pre>{"The data is not currently being processed."}</pre>)  }
             {JSON.stringify(getResult.processed) == "true" && (<pre>{"The data is currently being processed."}</pre>)  }
             {getResult.format &&(
