@@ -1,26 +1,31 @@
-This is an example project to demonstrate using the Inrupt Solid React SDK to build a web application, using [Next.js](https://nextjs.org/) and typescript.
-The example project is a sample application for editing user profile. You can play with the application at [https://solid-ui-react-example.docs.inrupt.com/](https://solid-ui-react-example.docs.inrupt.com/).
+# TFM-frontend
 
+This project is being developed by me as part of my TFM project with the objective of providing an interface to interact with the [TFM-API-express](https://github.com/Rlongares/TFM-API-express) pod in order to answer to Right of Access petitions.
 
-## Getting Started
+It is important that the authentication is done also on the API, as explained in its readme.
+
+In case the port is changed on the API, it must be changed in the code of this application, in the uri variable inside pages/index.jsx in order to make the query to the correct address.
+
+The port can be changed by changing the parameter of the listen function inside the server.js file.
 
 # Libraries used
-react
-@inrupt/solid-ui-react
-@inrupt/prism-react-components
-axios
-react-dropdown-tree-select
-@coreui/react
-react-query
+react <br>
+@inrupt/solid-ui-react <br>
+@inrupt/prism-react-components <br>
+axios <br>
+react-dropdown-tree-select <br>
+@coreui/react <br>
+react-query <br>
 react-query/devtools
 
-@coreui/react
-@coreui/coreui/dist/css/coreui.min.css
-@inrupt/solid-client
-@inrupt/solid-client-authn-browser'
+@coreui/react <br>
+@coreui/coreui/dist/css/coreui.min.css <br>
+@inrupt/solid-client <br>
+@inrupt/solid-client-authn-browser <br>
 bootstrap/dist/css/bootstrap.min.css
 
-To modify the application:
+# Getting started
+
 
 1. Clone the repo.
 2. Run the development server:
@@ -32,28 +37,3 @@ To modify the application:
    ```
 
 3. Open [http://localhost:3000](http://localhost:3000) with your browser.
-
-4. You can start editing the source files.  The application auto-updates as you edit the source files in `pages` and `components` folders.
-
-See also the [Sample Application Documentation](https://docs.inrupt.com/developer-tools/javascript/react-sdk/application/).
-
-## Learn More
-
-To learn more about the Inrupt Solid React SDK, take a look at the following resources:
-
-- [solid-ui-react](https://github.com/inrupt/solid-ui-react) on GitHub
-- [solid-ui-react storybook examples](https://solid-ui-react.vercel.app/?path=/story/*)
-- [documentation](https://docs.inrupt.com/developer-tools/javascript/react-sdk/)
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy this app is to use the [Vercel](https://vercel.com/import?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
-
-Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
